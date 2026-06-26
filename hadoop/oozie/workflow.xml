@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Oozie Workflow: Chạy toàn bộ pipeline tự động
+  Upload lên HDFS: /user/oozie/social_analytics/workflow.xml
+-->
+<workflow-app name="social-analytics-pipeline" xmlns="uri:oozie:workflow:0.5">
+
+  <start to="sqoop-import"/>
+
+  <!-- Bước 1: Sqoop import từ MySQL -->
+  <action name="sqoop-import">
+    <sqoop xmlns="uri:oozie:sqoop-action:0.3">
+      <job-tracker>${jobTracker}</job-tracker>
+      <name-node>${nameNode}</name-node>
+      <command>import --connect jdbc:mysql://localhost/social_db
+        --username root --password hadoop
+        --table tweets
+        --target-dir /user/social_analytics/raw/tweets
+        --num-mappers 4 --delete-target-dir</command>
+    </sqoop>
+    <ok to="hive-create-tables"/>
+    <error to="fail"/>
+  </action>
+
+  <!-- Bước 2: Tạo Hive tables -->
+  <action name="hive-create-tables">
+    <hive xmlns="uri:oozie:hive-action:0.3">
+      <job-tracker>${jobTracker}</job-tracker>
+      <name-node>${nameNode}</name-node>
+      <script>/user/oozie/social_analytics/hive/1_create_tables.hql</script>
+    </hive>
+    <ok to="hive-queries"/>
+    <error to="fail"/>
+  </action>
+
+  <!-- Bước 3: Chạy 5 HiveQL queries -->
+  <action name="hive-queries">
+    <hive xmlns="uri:oozie:hive-action:0.3">
+      <job-tracker>${jobTracker}</job-tracker>
+      <name-node>${nameNode}</name-node>
+      <script>/user/oozie/social_analytics/hive/2_queries.hql</script>
+    </hive>
+    <ok to="pig-keyword-stats"/>
+    <error to="fail"/>
+  </action>
+
+  <!-- Bước 4a: Pig - Keyword Stats -->
+  <action name="pig-keyword-stats">
+    <pig>
+      <job-tracker>${jobTracker}</job-tracker>
+      <name-node>${nameNode}</name-node>
+      <script>/user/oozie/social_analytics/pig/keyword_stats.pig</script>
+    </pig>
+    <ok to="pig-daily-keyword"/>
+    <error to="fail"/>
+  </action>
+
+  <!-- Bước 4b: Pig - Daily Trend -->
+  <action name="pig-daily-keyword">
+    <pig>
+      <job-tracker>${jobTracker}</job-tracker>
+      <name-node>${nameNode}</name-node>
+      <script>/user/oozie/social_analytics/pig/daily_keyword.pig</script>
+    </pig>
+    <ok to="pig-subreddit-stats"/>
+    <error to="fail"/>
+  </action>
+
+  <!-- Bước 4c: Pig - Subreddit Stats -->
+  <action name="pig-subreddit-stats">
+    <pig>
+      <job-tracker>${jobTracker}</job-tracker>
+      <name-node>${nameNode}</name-node>
+      <script>/user/oozie/social_analytics/pig/subreddit_stats.pig</script>
+    </pig>
+    <ok to="end"/>
+    <error to="fail"/>
+  </action>
+
+  <kill name="fail">
+    <message>Pipeline failed: ${wf:errorMessage(wf:lastErrorNode())}</message>
+  </kill>
+
+  <end name="end"/>
+</workflow-app>
