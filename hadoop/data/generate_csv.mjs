@@ -9,11 +9,12 @@ import { createWriteStream } from 'fs';
 // ══════════════════════════════════════════════
 //  CẤU HÌNH SỐ LƯỢNG DÒNG — chỉnh ở đây
 // ══════════════════════════════════════════════
-const TWEET_COUNT   = 10_000_000;   // 10 triệu tweets     (~1.4 GB)
-const POST_COUNT    =    500_000;   // 500 nghìn posts      (~77  MB)
-const COMMENT_COUNT = 20_000_000;   // 20 triệu comments   (~2.4 GB)
-// Tổng: ~30.5 triệu dòng, ~3.9 GB
-// Thời gian generate trên Windows: ~15-25 phút
+const TWEET_COUNT   = 500_000_000;  // 500 triệu tweets    (~70  GB)
+const POST_COUNT    =  10_000_000;  //  10 triệu posts      (~1.5 GB)
+const COMMENT_COUNT = 490_000_000;  // 490 triệu comments  (~60  GB)
+// Tổng: 1,000,000,000 dòng (1 TỶ), ~131 GB
+// Yêu cầu: ổ cứng trống 150 GB+, RAM 8 GB+
+// Thời gian generate trên Windows: ~3-5 tiếng
 // ══════════════════════════════════════════════
 
 const KEYWORDS = [
