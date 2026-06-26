@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Oozie Coordinator — Lên lịch chạy pipeline tự động mỗi ngày lúc 2:00 AM
+  Upload lên HDFS: /user/oozie/social_analytics/coordinator.xml
+  Chạy: oozie job -config job.properties -run
+-->
+<coordinator-app
+  name="social-analytics-daily"
+  frequency="${coord:days(1)}"
+  start="2024-01-01T02:00Z"
+  end="2025-12-31T02:00Z"
+  timezone="Asia/Ho_Chi_Minh"
+  xmlns="uri:oozie:coordinator:0.4">
+
+  <controls>
+    <timeout>120</timeout>
+    <concurrency>1</concurrency>
+    <execution>FIFO</execution>
+    <throttle>1</throttle>
+  </controls>
+
+  <!-- Dataset đầu vào: file CSV mới trong ngày -->
+  <datasets>
+    <dataset name="tweets_dataset"
+      frequency="${coord:days(1)}"
+      initial-instance="2024-01-01T00:00Z"
+      timezone="Asia/Ho_Chi_Minh">
+      <uri-template>
+        ${nameNode}/user/social_analytics/raw/tweets/${YEAR}-${MONTH}-${DAY}
+      </uri-template>
+      <done-flag></done-flag>
+    </dataset>
+  </datasets>
+
+  <input-events>
+    <data-in name="tweets_input" dataset="tweets_dataset">
+      <instance>${coord:current(0)}</instance>
+    </data-in>
+  </input-events>
+
+  <!-- Gọi workflow chính mỗi ngày -->
+  <action>
+    <workflow>
+      <app-path>${nameNode}/user/oozie/social_analytics/workflow.xml</app-path>
+      <configuration>
+        <property>
+          <name>inputDate</name>
+          <value>${coord:formatTime(coord:nominalTime(), 'yyyy-MM-dd')}</value>
+        </property>
+        <property>
+          <name>nameNode</name>
+          <value>${nameNode}</value>
+        </property>
+        <property>
+          <name>jobTracker</name>
+          <value>${jobTracker}</value>
+        </property>
+      </configuration>
+    </workflow>
+  </action>
+</coordinator-app>
