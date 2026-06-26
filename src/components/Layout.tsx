@@ -3,10 +3,10 @@ import {
   LayoutDashboard, GitBranch, BarChart3, Table2,
   ChevronLeft, ChevronRight, Activity, Cpu, HardDrive,
   ArrowDownToLine, Database, Grid3x3, Menu, X, ShieldCheck,
-  Gauge, Brain, Zap, Radio
+  Gauge, Brain, Zap, Radio, Map
 } from 'lucide-react';
 
-type Page = 'overview' | 'pipeline' | 'validator' | 'dashboard' | 'explorer' | 'benchmark' | 'ai_theory' | 'spark' | 'streaming';
+type Page = 'overview' | 'pipeline' | 'validator' | 'dashboard' | 'explorer' | 'benchmark' | 'ai_theory' | 'spark' | 'streaming' | 'architecture';
 
 interface Props {
   activePage: Page;
@@ -23,7 +23,8 @@ const navItems: { id: Page; label: string; sublabel: string; icon: React.Element
   { id: 'benchmark',  label: 'Benchmark',    sublabel: 'Hadoop vs Sequential', icon: Gauge },
   { id: 'spark',      label: 'Apache Spark', sublabel: 'PySpark · MapReduce', icon: Zap },
   { id: 'streaming',  label: 'Streaming',    sublabel: 'Kafka · Real-time',   icon: Radio },
-  { id: 'ai_theory',  label: 'Lý thuyết AI', sublabel: 'Embedding · Vector',  icon: Brain },
+  { id: 'ai_theory',    label: 'Lý thuyết AI',   sublabel: 'Embedding · Vector',    icon: Brain },
+  { id: 'architecture', label: 'Kiến trúc',      sublabel: 'Sơ đồ hệ thống',       icon: Map },
 ];
 
 export function Layout({ activePage, onNavigate, children }: Props) {

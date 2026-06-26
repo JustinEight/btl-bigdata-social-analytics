@@ -9,8 +9,9 @@ import { Benchmark } from './pages/Benchmark';
 import { AITheory } from './pages/AITheory';
 import { Spark } from './pages/Spark';
 import { Streaming } from './pages/Streaming';
+import { Architecture } from './pages/Architecture';
 
-type Page = 'overview' | 'pipeline' | 'validator' | 'dashboard' | 'explorer' | 'benchmark' | 'ai_theory' | 'spark' | 'streaming';
+type Page = 'overview' | 'pipeline' | 'validator' | 'dashboard' | 'explorer' | 'benchmark' | 'ai_theory' | 'spark' | 'streaming' | 'architecture';
 
 export default function App() {
   const [page, setPage] = useState<Page>('overview');
@@ -41,6 +42,8 @@ export default function App() {
         return <Spark />;
       case 'streaming':
         return <Streaming />;
+      case 'architecture':
+        return <Architecture />;
     }
   }
 
